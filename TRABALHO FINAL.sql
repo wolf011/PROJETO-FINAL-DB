@@ -264,6 +264,31 @@ INSERT INTO atualizacoes (id_atendente, id_consulta, id_paciente) VALUES
 
 -- ##################################################################################################################################################################
 
+-- UPDATES & EXCLUSÕES:
+
+UPDATE procedimentos_odontologicos 
+	SET nome_procedimento = 'Facetas dentárias'
+		WHERE id_procedimento = 1;
+
+UPDATE atendentes
+	SET nome_atendente = 'Matheus Tedesco'
+		WHERE id_atendente = 6
+
+UPDATE dentistas
+	SET cro = '1337RJ'
+		WHERE id_dentista = 3;
+
+
+DELETE FROM procedimentos_odontologicos WHERE nome_procedimento = 'Cirurgia periodontal'
+
+DELETE FROM pacientes WHERE nome_completo = 'Carlos Souza'
+
+DELETE FROM consultas WHERE prescricao = 'Tratamento de canal dente 45'
+
+
+-- ##################################################################################################################################################################
+
+
 -- CONSULTAS:
 
 -- Q1. Quantidade de consultas por especialidade
