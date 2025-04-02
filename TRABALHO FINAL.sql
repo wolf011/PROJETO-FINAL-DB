@@ -265,3 +265,53 @@ INSERT INTO atualizacoes (id_atendente, id_consulta, id_paciente) VALUES
 -- ##################################################################################################################################################################
 
 -- CONSULTAS:
+
+-- Q1. Quantidade de consultas por especialidade
+SELECT especialidade AS Especialidade,
+	COUNT(*) AS Todas_as_consultas
+FROM consultas
+GROUP BY especialidade
+ORDER BY Todas_as_consultas ASC;
+
+-- Q2. Quantidade de consultas realizadas por cada dentista
+SELECT 
+	d.nome_completo_dentista AS Nome_dentista,
+	COUNT(c.id_consulta) AS Numero_de_consultas
+FROM consultas c
+JOIN dentistas d ON c.id_dentista = d.id_dentista
+GROUP BY d.nome_completo_dentista
+ORDER BY Numero_de_consultas DESC;
+
+-- Q3. Pacientes com maior número de consultas
+SELECT p.nome_completo AS Nome_paciente, 
+	COUNT(a.id_consulta) AS Numero_de_consultas
+FROM agendamentos a
+JOIN pacientes p ON a.id_paciente = p.id_paciente
+GROUP BY p.nome_completo
+ORDER BY Numero_de_consultas DESC;
+
+-- Q4. View com lista de consultas ordenadas por data
+CREATE VIEW lista_consultas_ordenadas AS
+	SELECT
+		c.id_consulta,
+		p.nome_completo AS nome_paciente,
+		d.nome_completo_dentista AS nome_dentista,
+		c.data_horario_consulta AS data_consulta,
+		c.prescricao AS procedimentos_realizados
+	FROM consultas c
+	JOIN agendamentos a ON c.id_consulta = a.id_consulta
+	JOIN pacientes p ON a.id_paciente = p.id_paciente
+	JOIN dentistas d ON c.id_dentista = d.id_dentista
+	ORDER BY data_consulta DESC;
+
+SELECT * FROM lista_consultas_ordenadas;
+
+-- Q5. Média de consultas por dentista
+SELECT d.nome_completo_dentista AS Nome_dentistas,
+    ROUND (AVG(num_consultas), 2) AS Media_de_consultas
+FROM (SELECT c.id_dentista,
+		COUNT(c.id_consulta) AS num_consultas
+	FROM consultas c
+ 	GROUP BY c.id_dentista) AS subquery
+JOIN dentistas d ON subquery.id_dentista = d.id_dentista
+GROUP BY d.nome_completo_dentista;
