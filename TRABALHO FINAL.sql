@@ -117,6 +117,21 @@ CREATE TABLE atualizacoes(
 	FOREIGN KEY (id_consulta) REFERENCES consultas(id_consulta) ON DELETE CASCADE
 );
 
+-- Histórico de consultas:
+CREATE VIEW historico_consultas_pacientes AS
+        SELECT
+            p.nome_completo AS Nome_paciente,
+            c.data_horario_consulta AS Data_consulta,
+            d.nome_completo_dentista AS Nome_dentista,
+            c.especialidade AS Especialidade,
+            c.descricao_do_atendimento AS descricao_dos_atendimentos
+                FROM pacientes p
+                JOIN agendamentos a ON p.id_paciente = a.id_paciente
+                JOIN consultas c ON a.id_consulta = c.id_consulta
+                JOIN dentistas d ON c.id_dentista = d.id_dentista
+                ORDER BY p.nome_completo, c.data_horario_consulta DESC;
+
+SELECT * FROM historico_consultas_pacientes;
 
 -- ##################################################################################################################################################################
 
@@ -285,6 +300,13 @@ DELETE FROM pacientes WHERE nome_completo = 'Carlos Souza'
 
 DELETE FROM consultas WHERE prescricao = 'Tratamento de canal dente 45'
 
+
+-- ##################################################################################################################################################################
+
+-- CRIANDO ÍNDICES:
+CREATE INDEX idx_consultas_data_horario ON consultas (data_horario_consulta); -- INDICE DO HORARIO DAS CONSULTAS
+
+CREATE INDEX idx_consultas_dentista_especialidade ON consultas (id_dentista, especialidade); -- INDICE DAS ESPECIALIDADES DO DENTISTA DA CONSULTA
 
 -- ##################################################################################################################################################################
 
