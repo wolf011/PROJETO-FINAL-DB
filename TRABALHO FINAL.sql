@@ -46,6 +46,8 @@ CREATE TABLE dentistas (
 );
 
 -- Tabela Consultas:
+CREATE TYPE status_consulta AS ENUM ('agendada', 'realizada', 'cancelada');
+
 CREATE TABLE consultas (
 	id_consulta SERIAL PRIMARY KEY,
 	id_dentista SERIAL,
@@ -53,6 +55,7 @@ CREATE TABLE consultas (
 	especialidade VARCHAR(200) NOT NULL,
 	prescricao VARCHAR(200),
 	descricao_do_atendimento VARCHAR(200) NOT NULL,
+	staus status_consulta DEFAULT 'agendada'
 	FOREIGN KEY (id_dentista) REFERENCES dentistas(id_dentista) ON DELETE CASCADE
 );
 
@@ -82,6 +85,15 @@ CREATE TABLE procedimentos_odontologicos (
 	descricao VARCHAR(200) NOT NULL,
 	duracao_media TIME NOT NULL,
 	FOREIGN KEY (id_dentista) REFERENCES dentistas(id_dentista) ON DELETE CASCADE
+);
+
+-- Criar tabela intermediária entre consultas e procedimentos
+CREATE TABLE consulta_procedimentos (
+    id_conulta_procedimentos SERIAL PRIMARY KEY,
+	id_consulta SERIAL,
+    id_procedimento SERIAL,
+    FOREIGN KEY (id_consulta) REFERENCES consultas(id_consulta) ON DELETE CASCADE,
+    FOREIGN KEY (id_procedimento) REFERENCES procedimentos_odontologicos(id_procedimento) ON DELETE CASCADE
 );
 
 -- Tabela Agendamentos:
@@ -115,6 +127,24 @@ CREATE TABLE atualizacoes(
 	FOREIGN KEY (id_atendente) REFERENCES atendentes(id_atendente) ON DELETE CASCADE,
 	FOREIGN KEY (id_paciente) REFERENCES pacientes(id_paciente) ON DELETE CASCADE,
 	FOREIGN KEY (id_consulta) REFERENCES consultas(id_consulta) ON DELETE CASCADE
+);
+
+-- Tabela de Atualizações dos dados de clientes ou médicos:
+CREATE TABLE atualizacao_dados_pacientes (
+	id_atualizacao SERIAL PRIMARY KEY,
+	id_atendente SERIAL,
+	id_paciente SERIAL,
+	FOREIGN KEY (id_atendente) REFERENCES atendentes(id_atendente) ON DELETE CASCADE,
+	FOREIGN KEY (id_paciente) REFERENCES pacientes(id_paciente) ON DELETE CASCADE
+);
+
+-- Tabela de Atualizações dos dados de clientes ou médicos:
+CREATE TABLE atualizacao_dados_dentistas (
+	id_atualizacao SERIAL PRIMARY KEY,
+	id_atendente SERIAL,
+	id_dentista SERIAL,
+	FOREIGN KEY (id_atendente) REFERENCES atendentes(id_atendente) ON DELETE CASCADE,
+	FOREIGN KEY (id_dentista) REFERENCES dentistas(id_dentista) ON DELETE CASCADE
 );
 
 -- Histórico de consultas:
@@ -255,6 +285,17 @@ INSERT INTO procedimentos_odontologicos (id_dentista, nome_procedimento, descric
 (10, 'Gengivoplastia', 'Remodelagem do tecido gengival', '01:00:00'),
 (10, 'Enxerto gengival', 'Recobrimento de raiz exposta', '01:30:00');
 
+-- Tabela de Consulta procedimentos Odontológicos:
+INSERT INTO consulta_procedimentos (id_consulta, id_procedimento) VALUES
+(1, 1), (2, 3), (3, 5), (4, 8), (5, 9), 
+(6, 11), (7, 13), (8, 15), (9, 4), (10, 5),
+(11, 2), (12, 2), (13, 3), (14, 3),  (15, 5),
+(16, 5), (17, 7), (18, 8), (19, 9), (20, 10),
+(21, 11), (22, 12), (23, 14), (24, 13), (25, 16),
+(26, 18), (27, 3), (28, 3), (29, 5), (30, 5), (31, 2),
+(32, 4), (33, 20), (34, 10), (35, 9), (36, 11),(37, 13),
+(38, 15), (39, 3), (40, 5);
+
 -- Tabela Agendamentos:
 INSERT INTO agendamentos (id_atendente, id_consulta, id_paciente) VALUES
 (3, 1, 1), (5, 2, 2), (2, 3, 3), (7, 4, 4), (1, 5, 5),
@@ -271,11 +312,20 @@ INSERT INTO cancelamentos (id_atendente, id_consulta, id_paciente) VALUES
 (3, 1, 1), (5, 2, 2), (2, 3, 3), (7, 4, 4), (1, 5, 5),
 (4, 6, 6), (9, 7, 7), (6, 8, 8), (8, 9, 9), (10, 10, 10);
 
--- Tabela Atualizações:
+-- Tabela Atualizações de consultas:
 INSERT INTO atualizacoes (id_atendente, id_consulta, id_paciente) VALUES
 (1, 11, 1), (2, 12, 2), (3, 13, 3), (4, 14, 4), (5, 15, 5),
 (6, 16, 6), (7, 17, 7), (8, 18, 8), (9, 19, 9), (10, 20, 10);
 
+-- Tabela de atualizações de dados dos pacientes:
+INSERT INTO atualizacao_dados_pacientes (id_atendente, id_paciente) VALUES 
+(7, 1), (2, 4), (5, 7), (7, 2), (1, 7),
+(8, 9), (4, 1), (6, 5), (10, 2), (9, 10);
+
+-- Tabela de atualizações de dados dos dentistas:
+INSERT INTO atualizacao_dados_dentistas (id_atendente, id_dentista) VALUES 
+(6, 10), (3, 5), (1, 4), (9, 7), (2, 3),
+(4, 2), (8, 1), (10, 6), (7, 9), (5, 8);
 
 -- ##################################################################################################################################################################
 
